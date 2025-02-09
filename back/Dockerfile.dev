@@ -1,0 +1,24 @@
+# שלב 1: השתמש בבסיס Go
+FROM golang:1.21-alpine
+
+# התקנת כלים נדרשים
+RUN apk add --no-cache git
+
+# התקנת Air לניטור שינויים בקבצים
+RUN go install github.com/cosmtrek/air@latest
+
+# הגדרת תיקיית העבודה
+WORKDIR /app
+
+# העתקת קובץ התלויות
+COPY go.mod go.sum ./
+RUN go mod download
+
+# העתקת שאר הקבצים
+COPY . .
+
+# פתיחת הפורט של ה-API
+EXPOSE 2909
+
+# הפעלת Air למעקב אחר שינויים והרצה מחדש
+CMD ["air"]
