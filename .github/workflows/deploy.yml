@@ -36,6 +36,14 @@ jobs:
           docker tag my-app-frontend:latest ${{ secrets.ECR_URL }}/my-app-frontend:latest
           docker push ${{ secrets.ECR_URL }}/my-app-frontend:latest
 
+      - name: Register New Backend Task Definition
+        run: |
+          aws ecs register-task-definition --cli-input-json file://task-definition-backend.json
+
+      - name: Register New Frontend Task Definition
+        run: |
+          aws ecs register-task-definition --cli-input-json file://task-definition-frontend.json
+
       - name: Deploy to Amazon ECS
         run: |
           aws ecs update-service --cluster my-cluster --service backend-service --force-new-deployment
