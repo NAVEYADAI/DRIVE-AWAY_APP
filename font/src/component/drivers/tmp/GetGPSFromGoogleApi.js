@@ -21,7 +21,7 @@ export function GeocodingExample({ onLocationUpdate }) {
             const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
                 params: {
                     address: address,
-                    key: 'AIzaSyCZaMMQIskylBV3mSbcCebqmIkzU0MNqag'// my api code
+                    key: process.env.MY_GOOGLE_API_KEY // my api code
                 }
             });
 

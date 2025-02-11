@@ -1,0 +1,24 @@
+{
+    "family": "my-app-backend-task",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "256",
+    "memory": "512",
+    "executionRoleArn": "arn:aws:iam::848518129140:role/ecsTaskExecutionRole",
+    "containerDefinitions": [
+      {
+        "name": "my-app-backend",
+        "image": "848518129140.dkr.ecr.us-east-1.amazonaws.com/my-app-backend:latest",
+        "memory": 512,
+        "cpu": 256,
+        "essential": true,
+        "portMappings": [
+          {
+            "containerPort": 3003,
+            "protocol": "tcp"
+          }
+        ]
+      }
+    ]
+  }
+  

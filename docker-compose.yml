@@ -15,7 +15,7 @@ services:
   backend:
     build:
       context: ./back 
-      dockerfile: Dockerfile.back
+      dockerfile: Dockerfile
     ports:
       - "2909:2909"
     # restart: always

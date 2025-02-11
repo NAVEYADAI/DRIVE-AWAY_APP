@@ -20,7 +20,11 @@
 // )
 //
 //	func myApiKey() string {
-//		return "AIzaSyASul9yWhcMASKQFFsLVFuYNxXrFVDprCA"
+//			apiKey := os.Getenv("MY_GOOGLE_API_KEY")
+	// if apiKey == "" {
+	// 	fmt.Println("Warning: GOOGLE_MAPS_API_KEY is not set")
+	// }
+	// return apiKey
 //	}
 //
 //	func FindWay(origin, destination string) time.Duration {
@@ -106,13 +110,18 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
 func myApiKey() string {
-	return "AIzaSyASul9yWhcMASKQFFsLVFuYNxXrFVDprCA"
+	apiKey := os.Getenv("MY_GOOGLE_API_KEY")
+	if apiKey == "" {
+		fmt.Println("Warning: GOOGLE_MAPS_API_KEY is not set")
+	}
+	return apiKey
 }
 
 func FindWay(origin, destination string) time.Duration {
