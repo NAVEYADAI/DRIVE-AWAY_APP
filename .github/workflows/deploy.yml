@@ -26,13 +26,13 @@ jobs:
 
       - name: Build and Push Backend Docker Image
         run: |
-          docker build -t my-app-backend ./backend
+          docker build -t my-app-backend ./back
           docker tag my-app-backend:latest ${{ secrets.ECR_URL }}/my-app-backend:latest
           docker push ${{ secrets.ECR_URL }}/my-app-backend:latest
 
       - name: Build and Push Frontend Docker Image
         run: |
-          docker build -t my-app-frontend ./frontend
+          docker build -t my-app-frontend ./font
           docker tag my-app-frontend:latest ${{ secrets.ECR_URL }}/my-app-frontend:latest
           docker push ${{ secrets.ECR_URL }}/my-app-frontend:latest
 
