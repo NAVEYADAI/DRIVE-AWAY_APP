@@ -38,11 +38,11 @@ jobs:
 
       - name: Register New Backend Task Definition
         run: |
-          aws ecs register-task-definition --cli-input-json file://task-definition-backend.json
+          aws ecs register-task-definition --cli-input-json file://back/task-definition-backend.json
 
       - name: Register New Frontend Task Definition
         run: |
-          aws ecs register-task-definition --cli-input-json file://task-definition-frontend.json
+          aws ecs register-task-definition --cli-input-json file://font/task-definition-frontend.json
 
       - name: Deploy to Amazon ECS
         run: |
