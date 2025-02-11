@@ -1,24 +1,34 @@
 # Node modules
 node_modules/
+font/node_modules/
+
+# Build output
 dist/
 build/
+back/bin/
+
+# Docker-related files
+back/Dockerfile
+back/Dockerfile.dev
+font/Dockerfile
+font/Dockerfile.dev
+
+# Task definition json files
+back/backend-task-definition.json
+font/frontend-task-definition.json
 
 # Logs
-# logs/
-# *.log
-# npm-debug.log*
-# yarn-debug.log*
-# yarn-error.log*
+*.log
 
 # Environment variables
-# .env
-# .env.local
-# .env.development.local
-# .env.test.local
-# .env.production.local
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
 
 # Editor & OS files
-# .DS_Store
-# .vscode/
-# .idea/
-# *.swp
+.DS_Store
+.vscode/
+.idea/
+*.swp
