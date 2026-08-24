@@ -1,25 +1,72 @@
 services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_DBNAME:-driveaway}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  db_test:
+    image: postgres:16-alpine
+    restart: "no"
+    environment:
+      - POSTGRES_USER=${TEST_DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${TEST_DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${TEST_DB_DBNAME:-driveaway_test}
+    ports:
+      - "5434:5432"
+    volumes:
+      - db_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TEST_DB_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   frontend:
     build:
-      context: ./font  
+      context: ./font
       dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
     restart: always
     volumes:
-      - ./font:/app  
-      - /app/node_modules  
-    environment:
-      - CHOKIDAR_USEPOLLING=true  
+      - ./font:/app
+      - /app/node_modules
 
   backend:
     build:
-      context: ./back 
+      context: ./back
       dockerfile: Dockerfile
     ports:
       - "2909:2909"
-    # restart: always
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_DBNAME=${DB_DBNAME:-driveaway}
+      - DB_SSLMODE=disable
+      - MY_GOOGLE_API_KEY=${MY_GOOGLE_API_KEY:-}
     # volumes:
     #   - ./back:/app
     # working_dir: /app
     # command: air
+
+volumes:
+  db_data:
+  db_test_data:

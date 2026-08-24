@@ -1,21 +1,20 @@
-# Fetching the latest node image on alpine linux
-FROM node:alpine AS development
+FROM node:18-alpine AS build
 
-# Declaring env
-ENV NODE_ENV development
+WORKDIR /app
 
-# Setting up the work directory
-WORKDIR /react-app
+COPY package.json package-lock.json ./
+RUN npm install
 
-# Installing dependencies
-# COPY ./package*.json /react-app
+COPY . .
+RUN npm run build
 
-# RUN npm install
+FROM node:18-alpine
 
-# Copying all the files in our project
-COPY . . 
-# RUN rm -rf node_modules
+WORKDIR /app
+RUN npm install -g serve
 
+COPY --from=build /app/dist ./dist
 
-# Starting our application
-CMD ["npm","start"]
+EXPOSE 3000
+
+CMD ["serve", "-s", "dist", "-l", "3000"]

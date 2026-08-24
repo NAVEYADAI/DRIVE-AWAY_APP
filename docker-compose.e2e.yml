@@ -1,0 +1,22 @@
+# Overrides docker-compose.yml so `backend` points at the isolated db_test
+# service instead of the dev `db`. Usage:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.e2e.yml up -d --build backend frontend db_test
+#   npm --prefix e2e test
+#
+services:
+  backend:
+    depends_on:
+      db_test:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db_test
+      - DB_PORT=5432
+      - DB_USER=${TEST_DB_USER:-postgres}
+      - DB_PASSWORD=${TEST_DB_PASSWORD:-postgres}
+      # A separate database name from the one Go unit tests use
+      # (driveaway_test, via back/internal/testutil) so E2E runs never race
+      # unit test runs for table-truncation on the same db_test instance.
+      - DB_DBNAME=${TEST_DB_DBNAME:-driveaway_e2e}
+      - DB_SSLMODE=disable
+      - MY_GOOGLE_API_KEY=${MY_GOOGLE_API_KEY:-}

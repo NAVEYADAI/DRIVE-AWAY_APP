@@ -6,6 +6,12 @@ font/node_modules/
 dist/
 build/
 back/bin/
+coverage/
+
+# Test artifacts
+e2e/test-results/
+e2e/playwright-report/
+e2e/blob-report/
 
 # Docker-related files
 back/Dockerfile
@@ -14,8 +20,8 @@ font/Dockerfile
 font/Dockerfile.dev
 
 # Task definition json files
-back/backend-task-definition.json
-font/frontend-task-definition.json
+back/task-definition-backend.json
+font/task-definition-frontend.json
 
 # Logs
 *.log

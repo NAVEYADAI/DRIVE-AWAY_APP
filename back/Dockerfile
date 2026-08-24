@@ -14,7 +14,7 @@ RUN go mod download
 COPY . ./
 
 # הגדר את סביבת העבודה עבור הבנייה
-RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping
+RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping ./cmd/server
 
 # הפעל את הפורט הנדרש
 EXPOSE 2909
