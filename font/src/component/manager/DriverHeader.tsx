@@ -1,4 +1,4 @@
-import TextField from "@mui/material/TextField";
+import { LocationField } from "../common/LocationField";
 import React from "react";
 import Stack from "@mui/material/Stack";
 import Switch from '@mui/material/Switch';
@@ -17,14 +17,11 @@ const {
 }= DriverHeaderValue
     return(
         <Stack direction="column" spacing={2}>
-            <TextField
+            <LocationField
                 id="AddressValue"
                 label="כתובת"
-                sx={{ width: '100%' }}
                 value={AddressValue}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                    setDriverHeaderValue({ ...DriverHeaderValue, AddressValue: event.target.value });
-                }}
+                onChange={(value) => setDriverHeaderValue({ ...DriverHeaderValue, AddressValue: value })}
             />
             <FormControlLabel
                 control={

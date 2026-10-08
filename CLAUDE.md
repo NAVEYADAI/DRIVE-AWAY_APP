@@ -1,20 +1,96 @@
-# DRIVE-AWAY_APP — Project Conventions
+# DRIVE-AWAY_APP
 
-Monorepo: Go backend (`back/`, standard layout under `cmd/` + `internal/`) and React/TypeScript/Vite frontend (`font/`). Local dev runs via `docker-compose.yml` (services: `db`, `backend`, `frontend`). A separate `db_test` service provides an isolated Postgres instance for automated tests — **never point tests at `db` or the production RDS.**
+מערכת לניהול חברות הסעה: מנהל מערכת רושם חברות, מנהל חברה מוסיף נהגים ונסיעות, ואלגוריתם שיבוץ
+(Mapbox) מחלק נסיעות לנהגים. כל נהג רואה את הנסיעות שלו.
 
-## Testing policy (adopted 2026-08-24)
+מונוריפו: `back/` (Go, Gin + GORM + PostgreSQL, standard layout תחת `cmd/` + `internal/`) ו-`font/`
+(React + TypeScript + Vite + MUI; שם התיקייה הוא באמת `font`). בנוסף, `e2e/` (Playwright). הפיתוח
+המקומי רץ דרך `docker-compose.yml` (שירותים: `db`, `db_test`, `backend`, `frontend`).
 
-This project runs a real test suite. The rules below are load-bearing, not aspirational — treat them as required steps of "done," not follow-up work.
+## לפני שעובדים בתוך תת-תיקייה
 
-1. **Every bug fix ships with a regression test.** When a bug is found (by a human, in review, or by Claude), the fix is not complete until a test exists that reproduces the exact failure path that led to the bug and fails without the fix. Write the failing test first when practical, confirm it fails, then fix and confirm it passes. Name/comment the test so the original symptom is traceable (e.g. `TestLogin_EmptyPasswordDoesNotCrash` with a one-line comment on what broke and why).
-2. **Backend (`back/`)**: Go's standard `testing` package + `testify` (`require`/`assert`) for assertions. Tests live alongside the code they test (`*_test.go` in the same package) except where an existing package already uses a colocated `_test` external-test-package convention (`internal/sorting`). Tests that touch the database use the `back/internal/testutil` helper to connect to the isolated test DB — never call `config.Connect()` directly in a test.
-3. **Frontend (`font/`)**: Vitest + React Testing Library for unit/component tests (colocated as `*.test.tsx` next to the component). Test user-visible behavior (what renders, what a click does) over implementation details.
-4. **E2E (`e2e/`)**: Playwright, driving the real running stack (frontend + backend + `db_test`) through actual browser interactions for the critical end-to-end flows (login, core CRUD, sort creation). E2E tests are the top of the pyramid — cover golden paths and the highest-value edge cases here, not exhaustive permutations (that's what unit tests are for).
-5. **Test database isolation**: the `db_test` Postgres service (`docker-compose.yml`) is dedicated to automated tests, on its own port/volume, fully separate from the `db` dev service and from the production RDS instance referenced in `back/.env`. Backend tests default to connecting to `db_test` via `back/internal/testutil`; never wire a test to read `back/.env` or the production DSN.
-6. Run before considering backend work done: `cd back && go test ./...`. Run before considering frontend work done: `cd font && npm test`. Run before considering a cross-stack change done: the relevant `e2e/` spec.
+כל תת-תיקייה מחזיקה `CLAUDE.md` → `AGENTS.md` משלה, שנטען אוטומטית כשעובדים על קבצים בתוכה. אל
+תשכפל את התוכן שלהם כאן ואל תסתור אותו.
 
-## Architecture notes
+- **`back/AGENTS.md`**: מוסכמות Go/GORM, מודל ההרשאות `{userId, level}`, מלכודות בצורת התשובות,
+  `testutil`, והכלל של AutoMigrate מול ה-DB של production.
+- **`font/AGENTS.md`**: routes ו-HOCs של הרשאות, `GlobalState`, קריאות axios, `theme.ts`, ה-harness
+  של Vitest.
+- **`e2e/AGENTS.md`**: הכללים. `e2e/README.md` הוא סדר ההרצה המדויק.
+- **`specs/`**: תיעוד עובדתי לכל תחום, נגזר מקריאת הקוד (`00` מוסכמות, `01` auth, `02` management,
+  `03` sorting). **קרא את הקובץ הרלוונטי לפני שכותבים טסטים או נוגעים בהתנהגות קיימת.** הוא מקור האמת
+  למקרי קצה ולבאגים ידועים (§9 בכל קובץ), ולא הנחה על מה שהקוד "אמור" לעשות.
+- **`WORKFLOW.md`**: תוכנית העבודה (סדר שלבים), שערי Ready/Done, שיטות עבודה (branches, WIP=1,
+  אדום→ירוק, שינויי סכמה בהוספה בלבד), וטבלת תקלות מוכרות. **קרא לפני שמתחילים משימה חדשה.**
+- **`product-backlog/`**: באק לוג מוצרי, קובץ לכל פיצ'ר (תבנית ואינדקס ב-`README.md`). רעיונות
+  שעוד לא אופיינו נמצאים ב-`IDEAS.md`.
 
-- Backend follows the standard Go project layout: `back/cmd/server` (entrypoint), `back/internal/{config,auth,management,sorting}` (domain packages, each with `handler/model/service/routes` sub-packages where applicable). See `back/internal/config/db.go` for the DB connection (env-driven: `DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASSWORD`/`DB_DBNAME`/`DB_SSLMODE`).
-- Frontend is Vite + TypeScript (migrated from Create React App). MUI is the component library; `font/src/theme.ts` is the single source of styling tokens (palette, shape, typography) — don't hardcode colors/spacing in components when a theme token exists.
-- CORS on the backend allows any `http://localhost:<port>` origin in dev (see `back/cmd/server/main.go`) since the frontend dev-server port can shift.
+## פקודות נפוצות (מהשורש)
+
+- `docker compose up -d db_test`: DB הבדיקות המבודד (localhost:5434). נדרש לטסטים של Go.
+- `cd back && go test ./...`: כל טסטי ה-backend.
+- `cd font && npm test`: Vitest. `cd font && npx tsc -b`: בדיקת טיפוסים.
+- `npm --prefix e2e test`: Playwright, רק אחרי שלבי ההקמה ב-`e2e/README.md`.
+- `docker compose up -d`: סביבת פיתוח מלאה (frontend :3100 כברירת מחדל, אפשר לשנות עם `FRONTEND_PORT`; backend :2909).
+
+## ⚠️ Git ו-deploy
+
+- **push ל-`main` = deploy ל-AWS production** (`.github/workflows/deploy.yml`: build → ECR → ECS).
+  אין CI שמריץ טסטים לפני ה-deploy. לכן לא עושים `git push` בלי אישור מפורש (הוא גם מוגדר כ-`ask`
+  ב-`.claude/settings.json`), ועובדים על branch כשמשנים קוד.
+- `back/.env` מצביע על ה-RDS של **production**. אסור לקרוא, להדפיס או להתחבר אליו (חסום
+  ב-`.claude/settings.json`). גם `back/task-definition-backend.json` ו-`font/task-definition-frontend.json`
+  (ב-gitignore) דורשים אישור לפני קריאה.
+- שינוי סכמה עובר דרך `AutoMigrate` בעליית השרת, כלומר גם על production ב-deploy הבא. שינוי שם, מחיקה
+  או שינוי טיפוס של עמודה קיימת דורשים אישור מפורש מנוה.
+
+## מדיניות בדיקות (אומצה 2026-08-24)
+
+הכללים האלה מחייבים. הם חלק מההגדרה של "סיימתי", לא עבודת המשך.
+
+1. **כל תיקון באג מגיע עם טסט רגרסיה.** תיקון לא גמור עד שיש טסט שמשחזר בדיוק את מסלול הכשל ונכשל
+   בלי התיקון. כשאפשר: לכתוב את הטסט קודם, לוודא שהוא נכשל, לתקן, ולוודא שהוא עובר. השם או הערה
+   בשורה אחת צריכים לאפשר לעקוב אחרי הסימפטום המקורי (למשל `TestLogin_EmptyPasswordDoesNotCrash` עם
+   הערה על מה נשבר ולמה). אם הבאג מתועד ב-`specs/*.md` §9, מעדכנים את השורה (STATUS → `Fixed <date>`
+   + הפניה לטסט).
+2. **Backend (`back/`)**: `testing` + `testify` (`require`/`assert`). הטסטים יושבים ליד הקוד. הקונבנציה
+   בפועל היא **external test package** (`model_test`, `manager_test`, `sorting_test`...), ו-package
+   פנימי רק כשצריך גישה ל-unexported (כמו `sorting/MapboxApi_test.go`). טסט שנוגע ב-DB מתחיל
+   ב-`testutil.SetupTestDB(t)` (`back/internal/testutil`), ולעולם לא קורא ל-`config.Connect()`.
+3. **Frontend (`font/`)**: Vitest + React Testing Library, `*.test.tsx` ליד הקומפוננטה. בודקים
+   התנהגות שהמשתמש רואה (מה מוצג, מה לחיצה עושה) ולא פרטי מימוש.
+4. **E2E (`e2e/`)**: Playwright מול ה-stack האמיתי (frontend + backend + `db_test`) לזרימות הקריטיות
+   (login, CRUD מרכזי, יצירת שיבוץ). זו ראש הפירמידה: golden paths ומקרי הקצה החשובים ביותר, לא כל
+   הפרמוטציות.
+5. **בידוד DB**: `db_test` (פורט 5434, volume נפרד) מיועד רק לבדיקות, נפרד לגמרי מ-`db` ומה-RDS
+   של production. טסטי Go משתמשים ב-DB `driveaway_test`, ו-E2E משתמש ב-`driveaway_e2e` על אותו שרת.
+6. לפני שמכריזים שעבודה הסתיימה: backend → `cd back && go test ./...`; frontend → `cd font && npm test`
+   (+ `npx tsc -b`); שינוי חוצה stack → גם ה-spec הרלוונטי ב-`e2e/`.
+
+## הגדרות Claude Code בריפו (`.claude/`)
+
+- **`settings.json`** (משותף, נכנס ל-git): הרשאות. go/npm test ו-git read-only מותרים. `git push`,
+  `aws` ו-`docker compose down` דורשים אישור. קריאת `.env` ו-force-push חסומים. בנוסף hook שמריץ
+  `gofmt -w` על כל קובץ `.go` שנערך. הגדרות אישיות נכנסות ל-`.claude/settings.local.json`
+  (ב-gitignore).
+- **סוכנים (`.claude/agents/`)**, זהים במבנה לריפו navet-to-the-retro:
+  - **`product-manager`**: מופעל ידנית עם רעיון. חוקר את הקוד וכותב קובץ פיצ'ר חדש ב-`product-backlog/`.
+    לא ממציא החלטות מוצריות: הוא מסמן אותן כ"שאלות פתוחות" ומשאיר את הפיצ'ר כטיוטה.
+  - **`feature-orchestrator`**: נקודת הכניסה הרגילה לקידום הבאק לוג. מוצא את הפיצ'ר הבא ומפעיל בסדר
+    `backend-feature` → `frontend-feature` → `feature-tests`.
+  - **`backend-feature`** / **`frontend-feature`** / **`feature-tests`**: כל אחד מממש תת-סעיף אחד
+    (Backend / Frontend / בדיקות) של הפיצ'ר הבא. Frontend רץ רק אחרי ש-Backend סגור, ובדיקות רק אחרי
+    ששניהם סגורים.
+  - **`feature-dependency-checker`**: מופעל ידנית. בודק חפיפות touchpoints בין פיצ'ר לכל השאר
+    ומדווח על סיכונים.
+
+## הערות ארכיטקטורה
+
+- Backend: `back/cmd/server` (entrypoint, פורט 2909), `back/internal/{config,auth,management,sorting,testutil}`.
+  חיבור ה-DB ב-`back/internal/config/db.go` נקבע מ-env (`DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASSWORD`/`DB_DBNAME`/`DB_SSLMODE`).
+- **אין אימות בצד השרת.** הלקוח שולח `userId`/`level` בכל בקשה והשרת סומך עליהם. ר'
+  `specs/00-shared-conventions.md` §3. לא מציגים endpoint חדש כ"מאובטח".
+- Frontend: `font/src/theme.ts` הוא מקור יחיד לטוקנים של עיצוב (palette, shape, typography). לא
+  מקודדים צבעים או מרווחים בקומפוננטות כשיש טוקן.
+- CORS ב-backend מתיר כל `http://localhost:<port>` (`back/cmd/server/main.go`), כי פורט ה-dev
+  server של ה-frontend יכול לזוז.

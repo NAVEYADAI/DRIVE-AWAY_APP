@@ -2,15 +2,15 @@ import { test, expect } from '@playwright/test';
 
 // The sorting algorithm (back/internal/sorting/mainSort.go) unconditionally
 // calls FindWay() for every driver/drive pairing, which makes a real HTTP
-// call to the Google Maps Distance Matrix API (back/internal/sorting/GoogleMapApi.go).
-// No API key is configured for the E2E backend (MY_GOOGLE_API_KEY is unset
+// call to the Mapbox API (back/internal/sorting/MapboxApi.go).
+// No token is configured for the E2E backend (MAPBOX_ACCESS_TOKEN is unset
 // in docker-compose.e2e.yml) and this environment has no route to the real
-// Google API either way, so the call fails and Sort() always returns "we
+// Mapbox API either way, so the call fails and Sort() always returns "we
 // didnt can sort" here — confirmed via direct backend logs, not a bug in
 // this test or in the seeded fixture data (one available drive + driver is
 // seeded in global-setup.ts specifically for this test). Fixing this
-// properly means either mocking/injecting FindWay's HTTP client for E2E or
-// providing a real (test) API key — flagged for follow-up rather than
+// properly means either pointing mapboxBaseURL at a stub server for E2E or
+// providing a real (test) token — flagged for follow-up rather than
 // worked around here.
 test.fixme('a manager can create a sort/assignment', async ({ page }) => {
   page.on('dialog', (d) => d.accept());

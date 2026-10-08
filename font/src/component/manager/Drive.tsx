@@ -3,6 +3,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import TextField from "@mui/material/TextField";
+import { LocationField } from "../common/LocationField";
 import Stack from "@mui/material/Stack";
 import type { Dayjs } from 'dayjs';
 import { DriveFormData } from "../../types";
@@ -40,23 +41,17 @@ export function Drive({DriveValue,setDriveValue}: DriveProps) {
                     slotProps={{ textField: { fullWidth: true } }}
                 />
             </LocalizationProvider>
-            <TextField
+            <LocationField
                 id="StartGpsLocation"
                 label="מיקום התחלה"
-                sx={{ width: '100%' }}
                 value={StartGpsValue}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                    setDriveValue({ ...DriveValue, StartGpsValue: event.target.value });
-                }}
+                onChange={(value) => setDriveValue({ ...DriveValue, StartGpsValue: value })}
             />
-            <TextField
+            <LocationField
                 id="EndGps"
                 label="מיקום סיום"
-                sx={{ width: '100%' }}
                 value={EndGpsValue}
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                    setDriveValue({ ...DriveValue, EndGpsValue: event.target.value });
-                }}
+                onChange={(value) => setDriveValue({ ...DriveValue, EndGpsValue: value })}
             />
         </Stack>
     );

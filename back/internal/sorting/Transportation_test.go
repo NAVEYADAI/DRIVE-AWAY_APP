@@ -26,7 +26,7 @@ func TestGetTimeFromHourAndMin(t *testing.T) {
 
 func TestTransportation_GetFinishTransportation(t *testing.T) {
 	// Built directly rather than via NewTransportation, which calls the real
-	// Google Maps API through FindWay — see GoogleMapApi_test.go for why
+	// Google Maps API through FindWay — see MapboxApi_test.go for how it is tested
 	// that call isn't exercised in unit tests.
 	transportation := sorting.Transportation{
 		TimeStart:                time.Date(2026, 1, 1, 7, 0, 0, 0, time.UTC),

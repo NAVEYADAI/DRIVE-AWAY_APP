@@ -38,3 +38,9 @@ font/task-definition-frontend.json
 .vscode/
 .idea/
 *.swp
+test-results/
+
+# Claude Code — personal/runtime files (shared config in .claude/settings.json + .claude/agents/ IS committed)
+.claude/settings.local.json
+.claude/*.lock
+CLAUDE.local.md

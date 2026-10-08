@@ -38,11 +38,13 @@ services:
       context: ./font
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3100}:3000"
     restart: always
     volumes:
       - ./font:/app
       - /app/node_modules
+    environment:
+      - VITE_MAPBOX_TOKEN=${VITE_MAPBOX_TOKEN:-}
 
   backend:
     build:
@@ -61,7 +63,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-postgres}
       - DB_DBNAME=${DB_DBNAME:-driveaway}
       - DB_SSLMODE=disable
-      - MY_GOOGLE_API_KEY=${MY_GOOGLE_API_KEY:-}
+      - MAPBOX_ACCESS_TOKEN=${MAPBOX_ACCESS_TOKEN:-}
     # volumes:
     #   - ./back:/app
     # working_dir: /app
