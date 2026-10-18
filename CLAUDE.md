@@ -73,16 +73,11 @@
   `aws` ו-`docker compose down` דורשים אישור. קריאת `.env` ו-force-push חסומים. בנוסף hook שמריץ
   `gofmt -w` על כל קובץ `.go` שנערך. הגדרות אישיות נכנסות ל-`.claude/settings.local.json`
   (ב-gitignore).
-- **סוכנים (`.claude/agents/`)**, זהים במבנה לריפו navet-to-the-retro:
-  - **`product-manager`**: מופעל ידנית עם רעיון. חוקר את הקוד וכותב קובץ פיצ'ר חדש ב-`product-backlog/`.
-    לא ממציא החלטות מוצריות: הוא מסמן אותן כ"שאלות פתוחות" ומשאיר את הפיצ'ר כטיוטה.
-  - **`feature-orchestrator`**: נקודת הכניסה הרגילה לקידום הבאק לוג. מוצא את הפיצ'ר הבא ומפעיל בסדר
-    `backend-feature` → `frontend-feature` → `feature-tests`.
-  - **`backend-feature`** / **`frontend-feature`** / **`feature-tests`**: כל אחד מממש תת-סעיף אחד
-    (Backend / Frontend / בדיקות) של הפיצ'ר הבא. Frontend רץ רק אחרי ש-Backend סגור, ובדיקות רק אחרי
-    ששניהם סגורים.
-  - **`feature-dependency-checker`**: מופעל ידנית. בודק חפיפות touchpoints בין פיצ'ר לכל השאר
-    ומדווח על סיכונים.
+- **הצוות (plugin `dev-team`)** — הסוכנים (`dev-team:tech-lead`, `product-manager`, `backend-developer`, `frontend-developer`,
+  `qa-engineer`, `code-reviewer`, `security-checker`, `ux-ui-designer`, `dependency-checker`) מגיעים מ-plugin משותף
+  (ריפו נפרד, מותקן ברמת משתמש) ולא יושבים כאן. **`TEAM.md` בשורש** הוא ה-adapter שהם קוראים ראשון: סטאק, קבצים לכל תפקיד,
+  פקודות, כללים קשיחים, מילות הבאקלוג והגדרת "גמור". כללים מעדכנים ב-`TEAM.md`, לא בתוך סוכן. נקודת הכניסה לקידום
+  הבאק לוג: `dev-team:tech-lead`.
 
 ## הערות ארכיטקטורה
 
